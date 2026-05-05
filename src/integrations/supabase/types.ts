@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      practice_attempts: {
+        Row: {
+          breakdown: Json | null
+          category: string
+          created_at: string
+          feedback: Json | null
+          id: string
+          max_score: number | null
+          question_name: string
+          question_slug: string
+          score: number | null
+          user_id: string
+          user_response: string | null
+        }
+        Insert: {
+          breakdown?: Json | null
+          category: string
+          created_at?: string
+          feedback?: Json | null
+          id?: string
+          max_score?: number | null
+          question_name: string
+          question_slug: string
+          score?: number | null
+          user_id: string
+          user_response?: string | null
+        }
+        Update: {
+          breakdown?: Json | null
+          category?: string
+          created_at?: string
+          feedback?: Json | null
+          id?: string
+          max_score?: number | null
+          question_name?: string
+          question_slug?: string
+          score?: number | null
+          user_id?: string
+          user_response?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

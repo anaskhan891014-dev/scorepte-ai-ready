@@ -28,7 +28,7 @@ export const Hero = () => {
         <div className="mx-auto max-w-4xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-xs font-medium text-muted-foreground animate-fade-in">
             <Sparkles className="h-3.5 w-3.5 text-accent" />
-            Powered by Gemini AI · Updated August 2025 Format
+            Updated for the August 2025 PTE Academic Format
           </div>
 
           <h1 className="mt-6 text-4xl sm:text-5xl md:text-7xl font-extrabold leading-[1.05] animate-fade-in" style={{ animationDelay: "0.1s" }}>
@@ -38,7 +38,7 @@ export const Hero = () => {
           </h1>
 
           <p className="mt-6 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            Practice all 22 PTE question types with real-time Gemini AI scoring. Free forever.
+            Practice all 22 PTE question types with real-time AI scoring. Free forever.
             Built for dreamers worldwide.
           </p>
 

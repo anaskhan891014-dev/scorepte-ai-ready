@@ -9,7 +9,8 @@ import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
-import Practice, { PracticeSession } from "./pages/Practice.tsx";
+import Practice from "./pages/Practice.tsx";
+import PracticeSession from "./pages/PracticeSession.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();

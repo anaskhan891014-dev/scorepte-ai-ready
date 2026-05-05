@@ -52,8 +52,8 @@
     @apply bg-background text-foreground antialiased;
     font-family: 'DM Sans', system-ui, sans-serif;
     background-image:
-      radial-gradient(ellipse 80% 60% at 50% -10%, hsl(217 91% 60% / 0.15), transparent 70%),
-      radial-gradient(ellipse 60% 50% at 100% 30%, hsl(189 94% 43% / 0.08), transparent 70%);
+      radial-gradient(ellipse 80% 60% at 50% -10%, hsl(160 84% 39% / 0.15), transparent 70%),
+      radial-gradient(ellipse 60% 50% at 100% 30%, hsl(156 72% 60% / 0.08), transparent 70%);
     background-attachment: fixed;
   }
   h1, h2, h3, h4, h5, h6 {

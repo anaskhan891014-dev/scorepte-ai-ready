@@ -1,4 +1,5 @@
 import { ArrowRight, Play, Sparkles, Mic, CheckCircle2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 export const Hero = () => {
@@ -43,14 +44,18 @@ export const Hero = () => {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <Button variant="hero" size="xl" className="group">
-              Start Practicing Free
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-            <Button variant="glass" size="xl" className="group">
-              <Play className="mr-2 h-4 w-4" />
-              See How It Works
-            </Button>
+            <Link to="/signup">
+              <Button variant="hero" size="xl" className="group">
+                Start Practicing Free
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+            <a href="#how">
+              <Button variant="glass" size="xl" className="group">
+                <Play className="mr-2 h-4 w-4" />
+                See How It Works
+              </Button>
+            </a>
           </div>
         </div>
 

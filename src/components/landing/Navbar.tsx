@@ -1,13 +1,13 @@
 import { Sparkles, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const links = [
   { label: "Home", href: "#home" },
-  { label: "Practice", href: "#features" },
-  { label: "Mock Tests", href: "#question-types" },
-  { label: "AI Tutor", href: "#how" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Features", href: "#features" },
+  { label: "Question Types", href: "#question-types" },
+  { label: "How it works", href: "#how" },
 ];
 
 export const Navbar = () => {
@@ -50,8 +50,9 @@ export const Navbar = () => {
           ))}
         </ul>
 
-        <div className="hidden md:block">
-          <Button variant="hero" size="lg">Get Started Free</Button>
+        <div className="hidden md:flex items-center gap-3">
+          <Link to="/login"><Button variant="glass" size="lg">Login</Button></Link>
+          <Link to="/signup"><Button variant="hero" size="lg">Get Started Free</Button></Link>
         </div>
 
         <button
@@ -77,8 +78,9 @@ export const Navbar = () => {
                 </a>
               </li>
             ))}
-            <li>
-              <Button variant="hero" className="w-full">Get Started Free</Button>
+            <li className="flex flex-col gap-2 pt-2">
+              <Link to="/login" onClick={() => setOpen(false)}><Button variant="glass" className="w-full">Login</Button></Link>
+              <Link to="/signup" onClick={() => setOpen(false)}><Button variant="hero" className="w-full">Get Started Free</Button></Link>
             </li>
           </ul>
         </div>

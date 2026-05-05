@@ -38,7 +38,7 @@ export const Hero = () => {
           </h1>
 
           <p className="mt-6 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            Practice all 22 PTE question types with real-time Gemini AI scoring. Free forever.
+            Practice all 22 PTE question types with real-time AI scoring. Free forever.
             Built for dreamers worldwide.
           </p>
 

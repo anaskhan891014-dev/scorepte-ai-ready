@@ -7,7 +7,7 @@ const features: Feature[] = [
   { icon: PencilLine, title: "AI Writing Scorer", desc: "Granular feedback on grammar, vocabulary, structure and task achievement." },
   { icon: ClipboardCheck, title: "Full Mock Tests", desc: "Simulates real PTE exam conditions — full 2hr 15min sectioned test flow." },
   { icon: CalendarRange, title: "AI Study Plan", desc: "A personalized daily plan, auto-tuned to your target score and weak areas." },
-  { icon: Bot, title: "AI Tutor Chatbot", desc: "24/7 doubt solving powered by Gemini AI — explanations, tips, strategies." },
+  { icon: Bot, title: "AI Tutor Chatbot", desc: "24/7 doubt solving with instant explanations, tips and exam strategies." },
   { icon: BarChart3, title: "Performance Dashboard", desc: "Track progress across all 22 question types with deep analytics." },
 ];
 

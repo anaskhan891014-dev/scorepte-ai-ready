@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Brain, ClipboardList, MessageCircle, Trophy, Flame, ListChecks, AlertTriangle, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { MockHistoryCard } from "@/components/dashboard/MockHistoryCard";
 
 const stats = [
   { label: "Overall Score", value: "72", hint: "+4 this week", icon: Trophy },
@@ -105,6 +106,8 @@ const Dashboard = () => (
           </ul>
         </div>
       </div>
+
+      <MockHistoryCard />
     </div>
   </DashboardLayout>
 );

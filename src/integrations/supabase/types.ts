@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      mock_test_results: {
+        Row: {
+          ai_summary: string | null
+          communicative: Json
+          created_at: string
+          details: Json
+          duration_seconds: number
+          enabling: Json
+          id: string
+          overall_score: number
+          section: string | null
+          test_type: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          communicative?: Json
+          created_at?: string
+          details?: Json
+          duration_seconds?: number
+          enabling?: Json
+          id?: string
+          overall_score?: number
+          section?: string | null
+          test_type: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          communicative?: Json
+          created_at?: string
+          details?: Json
+          duration_seconds?: number
+          enabling?: Json
+          id?: string
+          overall_score?: number
+          section?: string | null
+          test_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       practice_attempts: {
         Row: {
           breakdown: Json | null

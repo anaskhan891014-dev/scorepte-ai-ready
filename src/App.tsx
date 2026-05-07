@@ -14,6 +14,8 @@ import PracticeSession from "./pages/PracticeSession.tsx";
 import MockTests from "./pages/MockTests.tsx";
 import MockExam from "./pages/MockExam.tsx";
 import MockResult from "./pages/MockResult.tsx";
+import AITutor from "./pages/AITutor.tsx";
+import StudyPlan from "./pages/StudyPlan.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -35,6 +37,8 @@ const App = () => (
             <Route path="/mock-tests" element={<ProtectedRoute><MockTests /></ProtectedRoute>} />
             <Route path="/mock-tests/run/:type" element={<ProtectedRoute><MockExam /></ProtectedRoute>} />
             <Route path="/mock-tests/result/:id" element={<ProtectedRoute><MockResult /></ProtectedRoute>} />
+            <Route path="/ai-tutor" element={<ProtectedRoute><AITutor /></ProtectedRoute>} />
+            <Route path="/study-plan" element={<ProtectedRoute><StudyPlan /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

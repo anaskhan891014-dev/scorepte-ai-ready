@@ -14,6 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          feedback: number | null
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          feedback?: number | null
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          feedback?: number | null
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mock_test_results: {
         Row: {
           ai_summary: string | null
@@ -122,6 +184,39 @@ export type Database = {
           target_exam_date?: string | null
           target_score?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      study_plans: {
+        Row: {
+          completed_tasks: Json
+          created_at: string
+          id: string
+          inputs: Json
+          is_active: boolean
+          plan: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_tasks?: Json
+          created_at?: string
+          id?: string
+          inputs?: Json
+          is_active?: boolean
+          plan?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_tasks?: Json
+          created_at?: string
+          id?: string
+          inputs?: Json
+          is_active?: boolean
+          plan?: Json
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

@@ -106,12 +106,17 @@ Generate exactly ${days} days starting from ${new Date().toISOString().slice(0, 
     doc.setFontSize(18); doc.text("ScorePTE — Your Study Plan", 14, 18);
     doc.setFontSize(10); doc.text(doc.splitTextToSize(plan.summary || "", 180), 14, 28);
     let y = 50;
-    plan.days.forEach((d) => {
+    if (plan.rawText) {
+      doc.text(doc.splitTextToSize(plan.rawText, 180), 14, y);
+      doc.save("scorepte-study-plan.pdf");
+      return;
+    }
+    (plan.days || []).forEach((d) => {
       if (y > 270) { doc.addPage(); y = 20; }
       doc.setFontSize(12); doc.setTextColor(16, 185, 129);
       doc.text(`Day ${d.day} — ${d.date}  ·  ${d.focus}`, 14, y); y += 6;
       doc.setFontSize(10); doc.setTextColor(40);
-      d.tasks.forEach((t) => {
+      (d.tasks || []).forEach((t) => {
         const line = `  • ${t.slot}: ${t.title} (${t.minutes} min · ${t.difficulty})`;
         doc.text(doc.splitTextToSize(line, 180), 14, y); y += 6;
       });

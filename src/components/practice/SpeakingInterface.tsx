@@ -132,7 +132,7 @@ export const SpeakingInterface = (p: Props) => {
         userResponse: finalText,
       });
     } catch (e: any) {
-      toast.error(e.message || "Scoring failed"); setPhase("idle");
+      toast.error("Something went wrong, please try again"); setPhase("idle");
     }
   };
 

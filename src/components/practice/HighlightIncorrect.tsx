@@ -46,7 +46,7 @@ export const HighlightIncorrect = ({ slug, q, questionType, onNext }: { slug: st
         feedback: { strengths: final.strengths, improvements: final.improvements, modelAnswer: final.modelAnswer },
         userResponse: Array.from(picked).map((i) => transcriptTokens[i]).join(", "),
       });
-    } catch (e: any) { toast.error(e.message || "Scoring failed"); }
+    } catch (e: any) { toast.error("Something went wrong, please try again"); }
     finally { setScoring(false); }
   };
 

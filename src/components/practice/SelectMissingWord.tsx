@@ -39,7 +39,7 @@ export const SelectMissingWord = ({ slug, q, questionType, onNext }: { slug: str
         feedback: { strengths: final.strengths, improvements: final.improvements, modelAnswer: final.modelAnswer },
         userResponse: q.options[picked],
       });
-    } catch (e: any) { toast.error(e.message || "Scoring failed"); }
+    } catch (e: any) { toast.error("Something went wrong, please try again"); }
     finally { setScoring(false); }
   };
 

@@ -51,7 +51,7 @@ export const WritingInterface = (p: Props) => {
         feedback: { strengths: r.strengths, improvements: r.improvements, modelAnswer: r.modelAnswer },
         userResponse: text,
       });
-    } catch (e: any) { toast.error(e.message || "Scoring failed"); }
+    } catch (e: any) { toast.error("Something went wrong, please try again"); }
     finally { setScoring(false); }
   };
 

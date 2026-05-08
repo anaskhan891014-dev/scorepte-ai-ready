@@ -72,7 +72,7 @@ export const FIBInterface = ({ slug, q, variant, audio, audioText, questionType,
         feedback: { strengths: final.strengths, improvements: final.improvements, modelAnswer: final.modelAnswer },
         userResponse: answers.join(" | "),
       });
-    } catch (e: any) { toast.error(e.message || "Scoring failed"); }
+    } catch (e: any) { toast.error("Something went wrong, please try again"); }
     finally { setScoring(false); }
   };
 

@@ -23,6 +23,7 @@ export const SpeakingInterface = (p: Props) => {
   const [transcript, setTranscript] = useState("");
   const [result, setResult] = useState<ScoreResult | null>(null);
   const [level, setLevel] = useState(0);
+  const [errorText, setErrorText] = useState("");
   const recRef = useRef<any>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -51,7 +52,7 @@ export const SpeakingInterface = (p: Props) => {
   };
 
   const start = async () => {
-    setResult(null); setTranscript(""); setPhase("playing");
+    setResult(null); setTranscript(""); setErrorText(""); setPhase("playing");
     if (p.audioOnly) {
       speak(p.prompt);
       // wait for speech to finish ~ approximate by length
@@ -88,7 +89,7 @@ export const SpeakingInterface = (p: Props) => {
       };
       tick();
     } catch {
-      toast.error("Microphone access denied — type your response in the box below.");
+      setErrorText("Microphone access denied — type your response in the box below.");
     }
 
     // Web Speech API for transcript
@@ -132,11 +133,11 @@ export const SpeakingInterface = (p: Props) => {
         userResponse: finalText,
       });
     } catch (e: any) {
-      toast.error("Something went wrong, please try again"); setPhase("idle");
+      setErrorText("Something went wrong, please try again"); setPhase("idle");
     }
   };
 
-  const reset = () => { setResult(null); setTranscript(""); setPhase("idle"); prep.reset(); rec.reset(); };
+  const reset = () => { setResult(null); setTranscript(""); setErrorText(""); setPhase("idle"); prep.reset(); rec.reset(); };
 
   return (
     <div className="space-y-5">
@@ -160,6 +161,7 @@ export const SpeakingInterface = (p: Props) => {
             {p.audioOnly ? <><Volume2 className="h-4 w-4 mr-2" /> Play Audio & Begin</> : "Start"}
           </Button>
         )}
+        {errorText && <p className="text-sm text-destructive text-center">{errorText}</p>}
         {phase === "playing" && (
           <div className="text-center text-muted-foreground flex items-center justify-center gap-2">
             <Volume2 className="h-4 w-4 text-accent animate-pulse" /> Listening to audio…

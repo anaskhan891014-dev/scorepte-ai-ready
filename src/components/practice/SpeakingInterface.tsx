@@ -5,7 +5,6 @@ import { formatTime, speak, stopSpeaking, playBeep, useCountdown } from "@/lib/p
 import { FeedbackCard } from "./FeedbackCard";
 import { scorePTE, saveAttempt, ScoreResult } from "@/lib/scorePTE";
 import { meta } from "@/lib/practiceBank";
-import { toast } from "sonner";
 
 type Props = {
   slug: string;

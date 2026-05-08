@@ -5,7 +5,6 @@ import { speak } from "@/lib/practiceUtils";
 import { FeedbackCard } from "./FeedbackCard";
 import { scorePTE, saveAttempt, ScoreResult } from "@/lib/scorePTE";
 import { meta, HIWQ } from "@/lib/practiceBank";
-import { toast } from "sonner";
 
 const tokenize = (s: string) => s.split(/(\s+)/);
 

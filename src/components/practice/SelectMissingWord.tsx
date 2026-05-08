@@ -5,7 +5,6 @@ import { speak, playBeep } from "@/lib/practiceUtils";
 import { FeedbackCard } from "./FeedbackCard";
 import { scorePTE, saveAttempt, ScoreResult } from "@/lib/scorePTE";
 import { meta, SMWQ } from "@/lib/practiceBank";
-import { toast } from "sonner";
 
 export const SelectMissingWord = ({ slug, q, questionType, onNext }: { slug: string; q: SMWQ; questionType: string; onNext: () => void }) => {
   const [picked, setPicked] = useState<number | null>(null);

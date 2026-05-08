@@ -6,7 +6,6 @@ import { speak } from "@/lib/practiceUtils";
 import { FeedbackCard } from "./FeedbackCard";
 import { scorePTE, saveAttempt, ScoreResult } from "@/lib/scorePTE";
 import { meta, MCQQ } from "@/lib/practiceBank";
-import { toast } from "sonner";
 
 type Props = {
   slug: string;

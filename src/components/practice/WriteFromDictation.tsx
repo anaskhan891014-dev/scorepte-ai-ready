@@ -6,7 +6,6 @@ import { speak } from "@/lib/practiceUtils";
 import { FeedbackCard } from "./FeedbackCard";
 import { scorePTE, saveAttempt, ScoreResult } from "@/lib/scorePTE";
 import { meta, WFDQ } from "@/lib/practiceBank";
-import { toast } from "sonner";
 
 export const WriteFromDictation = ({ slug, q, questionType, onNext }: { slug: string; q: WFDQ; questionType: string; onNext: () => void }) => {
   const [text, setText] = useState("");

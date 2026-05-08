@@ -4,7 +4,6 @@ import { ArrowDown, ArrowUp, Loader2 } from "lucide-react";
 import { FeedbackCard } from "./FeedbackCard";
 import { scorePTE, saveAttempt, ScoreResult } from "@/lib/scorePTE";
 import { meta, ReorderQ } from "@/lib/practiceBank";
-import { toast } from "sonner";
 
 type Props = { slug: string; q: ReorderQ; questionType: string; onNext: () => void };
 

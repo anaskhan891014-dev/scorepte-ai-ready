@@ -5,7 +5,6 @@ import { formatTime, useCountdown } from "@/lib/practiceUtils";
 import { FeedbackCard } from "./FeedbackCard";
 import { scorePTE, saveAttempt, ScoreResult } from "@/lib/scorePTE";
 import { meta } from "@/lib/practiceBank";
-import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 type Props = {

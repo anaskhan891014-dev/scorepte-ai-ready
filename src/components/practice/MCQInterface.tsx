@@ -21,6 +21,7 @@ export const MCQInterface = ({ slug, q, multi, audio, questionType, onNext }: Pr
   const [picked, setPicked] = useState<number[]>([]);
   const [scoring, setScoring] = useState(false);
   const [result, setResult] = useState<ScoreResult | null>(null);
+  const [errorText, setErrorText] = useState("");
 
   const toggle = (i: number) => {
     if (multi) setPicked((p) => (p.includes(i) ? p.filter((x) => x !== i) : [...p, i]));
@@ -28,7 +29,8 @@ export const MCQInterface = ({ slug, q, multi, audio, questionType, onNext }: Pr
   };
 
   const submit = async () => {
-    if (!picked.length) { toast.error("Please pick an answer."); return; }
+    if (!picked.length) { setErrorText("Please pick an answer."); return; }
+    setErrorText("");
     setScoring(true);
     try {
       const userAnswer = picked.map((i) => q.options[i]).join("; ");
@@ -58,11 +60,11 @@ export const MCQInterface = ({ slug, q, multi, audio, questionType, onNext }: Pr
         feedback: { strengths: final.strengths, improvements: final.improvements, modelAnswer: final.modelAnswer },
         userResponse: userAnswer,
       });
-    } catch (e: any) { toast.error("Something went wrong, please try again"); }
+    } catch { setErrorText("Something went wrong, please try again"); }
     finally { setScoring(false); }
   };
 
-  const reset = () => { setPicked([]); setResult(null); };
+  const reset = () => { setPicked([]); setResult(null); setErrorText(""); };
 
   if (result || scoring) return <FeedbackCard result={result} loading={scoring} onRetry={reset} onNext={onNext} />;
 
@@ -109,6 +111,7 @@ export const MCQInterface = ({ slug, q, multi, audio, questionType, onNext }: Pr
         <Button variant="hero" size="lg" className="w-full" onClick={submit} disabled={scoring}>
           {scoring ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit"}
         </Button>
+        {errorText && <p className="text-sm text-destructive text-center">{errorText}</p>}
       </div>
     </div>
   );

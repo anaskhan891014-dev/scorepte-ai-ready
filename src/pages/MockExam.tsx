@@ -7,8 +7,8 @@ import { fullTest, miniTest, buildSectional, totalDurationSeconds, sectionLabel,
 import { formatTime } from "@/lib/practiceUtils";
 import { ExamQuestion } from "@/components/mock/ExamQuestion";
 import { scorePTE } from "@/lib/scorePTE";
+import { FRIENDLY_ERROR } from "@/lib/gemini";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 type Plan = { qs: MockQ[]; sectionStarts: number[]; sections: SectionKey[]; type: string; duration: number };
 
@@ -46,6 +46,7 @@ const MockExam = () => {
   const [endOpen, setEndOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [errorText, setErrorText] = useState("");
   const [left, setLeft] = useState(plan.duration);
   const tick = useRef<number | null>(null);
   const startedAt = useRef(Date.now());
@@ -79,6 +80,7 @@ const MockExam = () => {
   const submit = async () => {
     if (submitting) return;
     setSubmitting(true);
+    setErrorText("");
     setEndOpen(false);
 
     const details: any[] = [];
@@ -105,8 +107,8 @@ const MockExam = () => {
               expected: item.data.correct,
             });
             score = r.overall; breakdown = r.breakdown; strengths = r.strengths; improvements = r.improvements; modelAnswer = r.modelAnswer;
-          } catch (e) {
-            console.error("score err", e);
+          } catch {
+            improvements = [FRIENDLY_ERROR];
           }
         }
         catScores[item.category].push(score);
@@ -131,7 +133,7 @@ const MockExam = () => {
       const duration = Math.round((Date.now() - startedAt.current) / 1000);
 
       const { data: u } = await supabase.auth.getUser();
-      if (!u.user) { toast.error("Please log in to save your result"); return; }
+      if (!u.user) { setErrorText("Please log in to save your result."); setSubmitting(false); return; }
       const { data: ins, error } = await supabase
         .from("mock_test_results")
         .insert({
@@ -149,9 +151,8 @@ const MockExam = () => {
         .single();
       if (error) throw error;
       nav(`/mock-tests/result/${ins.id}`);
-    } catch (e: any) {
-      console.error(e);
-      toast.error(e.message || "Failed to score test");
+    } catch {
+      setErrorText(FRIENDLY_ERROR);
       setSubmitting(false);
     }
   };
@@ -169,6 +170,7 @@ const MockExam = () => {
             <div className="h-full bg-emerald-500 transition-all" style={{ width: `${progress}%` }} />
           </div>
           <p className="mt-3 text-xs text-slate-500">{progress}%</p>
+          {errorText && <p className="mt-4 text-sm text-rose-600">{errorText}</p>}
         </div>
       </div>
     );
@@ -242,6 +244,11 @@ const MockExam = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {errorText && (
+        <div className="fixed bottom-20 left-1/2 z-40 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-lg border border-rose-200 bg-white px-4 py-3 text-sm text-rose-600 shadow-lg">
+          {errorText}
+        </div>
+      )}
     </div>
   );
 };

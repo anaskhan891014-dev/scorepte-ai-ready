@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Sparkles, Loader2 } from "lucide-react";
+import { generateGeminiText } from "@/lib/gemini";
 
 export const MotivationCard = () => {
   const { user } = useAuth();
@@ -19,8 +20,12 @@ export const MotivationCard = () => {
       const avg = attempts?.length ? Math.round(attempts.reduce((s, a: any) => s + (a.score || 0), 0) / attempts.length) : 0;
       const stats = { recentAvg: avg, attempts: attempts?.length || 0 };
       try {
-        const { data } = await supabase.functions.invoke("daily-motivation", { body: { stats } });
-        const t = data?.text || "Keep practicing — consistency beats intensity!";
+        const t = await generateGeminiText({
+          system: "You are ScorePTE AI Coach. Write one short motivational PTE study message.",
+          prompt: `Recent average score: ${stats.recentAvg}. Recent attempts: ${stats.attempts}. Write one sentence under 24 words with one focus area suggestion.`,
+          temperature: 0.8,
+          maxOutputTokens: 80,
+        });
         setText(t); localStorage.setItem(key, t);
       } catch {
         setText("Keep practicing — consistency beats intensity!");

@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
 import { AuthShell, GoogleButton } from "@/components/auth/AuthShell";
 import { Loader2 } from "lucide-react";
 
@@ -55,16 +54,15 @@ const Signup = () => {
     });
     setLoading(false);
     if (error) {
-      toast.error(error.message);
+      setErrors({ form: "Something went wrong, please try again" });
       return;
     }
-    toast.success("Account created! Welcome to ScorePTE.");
     navigate("/dashboard");
   };
 
   const onGoogle = async () => {
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/dashboard" });
-    if (result.error) return toast.error("Google sign-in failed");
+    if (result.error) { setErrors({ form: "Something went wrong, please try again" }); return; }
     if (result.redirected) return;
     navigate("/dashboard");
   };
@@ -112,6 +110,7 @@ const Signup = () => {
         <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create Free Account"}
         </Button>
+        {errors.form && <p className="text-sm text-destructive text-center">{errors.form}</p>}
       </form>
 
       <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">

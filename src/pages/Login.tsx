@@ -6,7 +6,6 @@ import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
 import { AuthShell, GoogleButton } from "@/components/auth/AuthShell";
 import { Loader2 } from "lucide-react";
 
@@ -37,10 +36,9 @@ const Login = () => {
     const { error } = await supabase.auth.signInWithPassword({ email: parsed.data.email, password: parsed.data.password });
     setLoading(false);
     if (error) {
-      toast.error(error.message);
+      setErrors({ form: "Something went wrong, please try again" });
       return;
     }
-    toast.success("Welcome back!");
     navigate("/dashboard");
   };
 
@@ -48,7 +46,7 @@ const Login = () => {
     setGoogleLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/dashboard" });
     if (result.error) {
-      toast.error("Google sign-in failed");
+      setErrors({ form: "Something went wrong, please try again" });
       setGoogleLoading(false);
       return;
     }
@@ -72,6 +70,7 @@ const Login = () => {
         <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Login"}
         </Button>
+        {errors.form && <p className="text-sm text-destructive text-center">{errors.form}</p>}
       </form>
 
       <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">

@@ -5,12 +5,12 @@ import { speak, playBeep } from "@/lib/practiceUtils";
 import { FeedbackCard } from "./FeedbackCard";
 import { scorePTE, saveAttempt, ScoreResult } from "@/lib/scorePTE";
 import { meta, SMWQ } from "@/lib/practiceBank";
-import { toast } from "sonner";
 
 export const SelectMissingWord = ({ slug, q, questionType, onNext }: { slug: string; q: SMWQ; questionType: string; onNext: () => void }) => {
   const [picked, setPicked] = useState<number | null>(null);
   const [scoring, setScoring] = useState(false);
   const [result, setResult] = useState<ScoreResult | null>(null);
+  const [errorText, setErrorText] = useState("");
 
   const play = async () => {
     speak(q.audioText);
@@ -18,7 +18,8 @@ export const SelectMissingWord = ({ slug, q, questionType, onNext }: { slug: str
   };
 
   const submit = async () => {
-    if (picked === null) { toast.error("Pick a word."); return; }
+    if (picked === null) { setErrorText("Pick a word."); return; }
+    setErrorText("");
     setScoring(true);
     try {
       const correct = picked === q.correct;
@@ -39,11 +40,11 @@ export const SelectMissingWord = ({ slug, q, questionType, onNext }: { slug: str
         feedback: { strengths: final.strengths, improvements: final.improvements, modelAnswer: final.modelAnswer },
         userResponse: q.options[picked],
       });
-    } catch (e: any) { toast.error(e.message || "Scoring failed"); }
+    } catch { setErrorText("Something went wrong, please try again"); }
     finally { setScoring(false); }
   };
 
-  const reset = () => { setPicked(null); setResult(null); };
+  const reset = () => { setPicked(null); setResult(null); setErrorText(""); };
 
   if (result || scoring) return <FeedbackCard result={result} loading={scoring} onRetry={reset} onNext={onNext} />;
 
@@ -74,6 +75,7 @@ export const SelectMissingWord = ({ slug, q, questionType, onNext }: { slug: str
         <Button variant="hero" size="lg" className="w-full" onClick={submit} disabled={scoring}>
           {scoring ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit"}
         </Button>
+        {errorText && <p className="text-sm text-destructive text-center">{errorText}</p>}
       </div>
     </div>
   );

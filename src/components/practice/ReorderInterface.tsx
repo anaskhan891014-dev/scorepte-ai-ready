@@ -4,7 +4,6 @@ import { ArrowDown, ArrowUp, Loader2 } from "lucide-react";
 import { FeedbackCard } from "./FeedbackCard";
 import { scorePTE, saveAttempt, ScoreResult } from "@/lib/scorePTE";
 import { meta, ReorderQ } from "@/lib/practiceBank";
-import { toast } from "sonner";
 
 type Props = { slug: string; q: ReorderQ; questionType: string; onNext: () => void };
 
@@ -13,6 +12,7 @@ export const ReorderInterface = ({ slug, q, questionType, onNext }: Props) => {
   const [order, setOrder] = useState(initial);
   const [scoring, setScoring] = useState(false);
   const [result, setResult] = useState<ScoreResult | null>(null);
+  const [errorText, setErrorText] = useState("");
 
   const move = (i: number, dir: -1 | 1) => {
     const j = i + dir;
@@ -22,6 +22,7 @@ export const ReorderInterface = ({ slug, q, questionType, onNext }: Props) => {
   };
 
   const submit = async () => {
+    setErrorText("");
     setScoring(true);
     try {
       const userOrder = order.map((o) => o.id);
@@ -48,11 +49,11 @@ export const ReorderInterface = ({ slug, q, questionType, onNext }: Props) => {
         feedback: { strengths: final.strengths, improvements: final.improvements, modelAnswer: final.modelAnswer },
         userResponse: userOrder.join(" → "),
       });
-    } catch (e: any) { toast.error(e.message || "Scoring failed"); }
+    } catch { setErrorText("Something went wrong, please try again"); }
     finally { setScoring(false); }
   };
 
-  const reset = () => { setOrder([...q.items].sort(() => Math.random() - 0.5)); setResult(null); };
+  const reset = () => { setOrder([...q.items].sort(() => Math.random() - 0.5)); setResult(null); setErrorText(""); };
 
   if (result || scoring) return <FeedbackCard result={result} loading={scoring} onRetry={reset} onNext={onNext} />;
 
@@ -76,6 +77,7 @@ export const ReorderInterface = ({ slug, q, questionType, onNext }: Props) => {
       <Button variant="hero" size="lg" className="w-full" onClick={submit} disabled={scoring}>
         {scoring ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit"}
       </Button>
+      {errorText && <p className="text-sm text-destructive text-center">{errorText}</p>}
     </div>
   );
 };

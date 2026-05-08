@@ -5,7 +5,6 @@ import { speak } from "@/lib/practiceUtils";
 import { FeedbackCard } from "./FeedbackCard";
 import { scorePTE, saveAttempt, ScoreResult } from "@/lib/scorePTE";
 import { meta, FIBQ } from "@/lib/practiceBank";
-import { toast } from "sonner";
 
 type Props = {
   slug: string;
@@ -38,6 +37,7 @@ export const FIBInterface = ({ slug, q, variant, audio, audioText, questionType,
   const [answers, setAnswers] = useState<string[]>(Array(blanks).fill(""));
   const [scoring, setScoring] = useState(false);
   const [result, setResult] = useState<ScoreResult | null>(null);
+  const [errorText, setErrorText] = useState("");
 
   // For drag variant: track which bank words have been used
   const allOptions = useMemo(() => {
@@ -51,7 +51,8 @@ export const FIBInterface = ({ slug, q, variant, audio, audioText, questionType,
   const setAt = (i: number, v: string) => setAnswers((a) => { const n = [...a]; n[i] = v; return n; });
 
   const submit = async () => {
-    if (answers.some((a) => !a.trim())) { toast.error("Fill in all blanks."); return; }
+    if (answers.some((a) => !a.trim())) { setErrorText("Fill in all blanks."); return; }
+    setErrorText("");
     setScoring(true);
     try {
       const correctCount = answers.reduce((acc, a, i) => acc + (a.trim().toLowerCase() === q.correct[i].toLowerCase() ? 1 : 0), 0);
@@ -72,11 +73,11 @@ export const FIBInterface = ({ slug, q, variant, audio, audioText, questionType,
         feedback: { strengths: final.strengths, improvements: final.improvements, modelAnswer: final.modelAnswer },
         userResponse: answers.join(" | "),
       });
-    } catch (e: any) { toast.error(e.message || "Scoring failed"); }
+    } catch { setErrorText("Something went wrong, please try again"); }
     finally { setScoring(false); }
   };
 
-  const reset = () => { setAnswers(Array(blanks).fill("")); setResult(null); };
+  const reset = () => { setAnswers(Array(blanks).fill("")); setResult(null); setErrorText(""); };
 
   if (result || scoring) return <FeedbackCard result={result} loading={scoring} onRetry={reset} onNext={onNext} />;
 
@@ -167,6 +168,7 @@ export const FIBInterface = ({ slug, q, variant, audio, audioText, questionType,
       <Button variant="hero" size="lg" className="w-full" onClick={submit} disabled={scoring}>
         {scoring ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit"}
       </Button>
+      {errorText && <p className="text-sm text-destructive text-center">{errorText}</p>}
     </div>
   );
 };

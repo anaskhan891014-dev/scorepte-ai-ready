@@ -5,7 +5,6 @@ import { speak } from "@/lib/practiceUtils";
 import { FeedbackCard } from "./FeedbackCard";
 import { scorePTE, saveAttempt, ScoreResult } from "@/lib/scorePTE";
 import { meta, HIWQ } from "@/lib/practiceBank";
-import { toast } from "sonner";
 
 const tokenize = (s: string) => s.split(/(\s+)/);
 
@@ -20,12 +19,14 @@ export const HighlightIncorrect = ({ slug, q, questionType, onNext }: { slug: st
   const [picked, setPicked] = useState<Set<number>>(new Set());
   const [scoring, setScoring] = useState(false);
   const [result, setResult] = useState<ScoreResult | null>(null);
+  const [errorText, setErrorText] = useState("");
 
   const toggle = (i: number) => {
     setPicked((p) => { const n = new Set(p); n.has(i) ? n.delete(i) : n.add(i); return n; });
   };
 
   const submit = async () => {
+    setErrorText("");
     setScoring(true);
     try {
       let correct = 0, wrong = 0;
@@ -46,11 +47,11 @@ export const HighlightIncorrect = ({ slug, q, questionType, onNext }: { slug: st
         feedback: { strengths: final.strengths, improvements: final.improvements, modelAnswer: final.modelAnswer },
         userResponse: Array.from(picked).map((i) => transcriptTokens[i]).join(", "),
       });
-    } catch (e: any) { toast.error(e.message || "Scoring failed"); }
+    } catch { setErrorText("Something went wrong, please try again"); }
     finally { setScoring(false); }
   };
 
-  const reset = () => { setPicked(new Set()); setResult(null); };
+  const reset = () => { setPicked(new Set()); setResult(null); setErrorText(""); };
 
   if (result || scoring) return <FeedbackCard result={result} loading={scoring} onRetry={reset} onNext={onNext} />;
 
@@ -78,6 +79,7 @@ export const HighlightIncorrect = ({ slug, q, questionType, onNext }: { slug: st
       <Button variant="hero" size="lg" className="w-full" onClick={submit} disabled={scoring}>
         {scoring ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit"}
       </Button>
+      {errorText && <p className="text-sm text-destructive text-center">{errorText}</p>}
     </div>
   );
 };

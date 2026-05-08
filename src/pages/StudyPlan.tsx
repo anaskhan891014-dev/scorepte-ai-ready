@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Sparkles, Download, RefreshCw, CheckCircle2, Circle, Sun, Sunset, Moon, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
+import { FRIENDLY_ERROR, generateGeminiText, parseGeminiJson } from "@/lib/gemini";
 
 type Task = { id: string; slot: string; title: string; type: string; minutes: number; difficulty: string };
 type Day = { day: number; date: string; focus: string; tasks: Task[] };
-type Plan = { summary: string; days: Day[] };
+type Plan = { summary: string; days: Day[]; rawText?: string };
 
 const SLOT_ICON: Record<string, any> = { Morning: Sun, Afternoon: Sunset, Evening: Moon };
 
@@ -20,6 +21,7 @@ const StudyPlan = () => {
   const [planRow, setPlanRow] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [errorText, setErrorText] = useState("");
   const [form, setForm] = useState({
     currentScore: "",
     targetScore: "65",
@@ -41,18 +43,51 @@ const StudyPlan = () => {
   const generate = async () => {
     if (!user) return;
     setGenerating(true);
+    setErrorText("");
     try {
-      const { data, error } = await supabase.functions.invoke("study-plan", { body: { inputs: form } });
-      if (error) throw error;
+      const days = Math.max(1, Math.min(60, Math.ceil((new Date(form.examDate).getTime() - Date.now()) / 86400000)));
+      const text = await generateGeminiText({
+        system: "You are ScorePTE AI Coach. Build personalized PTE Academic study plans covering all 22 question types. Focus more time on weak areas.",
+        prompt: `Build a ${days}-day PTE study plan.
+Current score: ${form.currentScore || "Never taken"}
+Target score: ${form.targetScore}
+Daily hours available: ${form.dailyHours}
+Weak areas: ${form.weakAreas.join(", ") || "balanced"}
+Goal: ${form.goal}
+
+Return JSON exactly when possible:
+{
+  "summary": "2-3 sentence overview",
+  "days": [{
+    "day": 1,
+    "date": "YYYY-MM-DD",
+    "focus": "main theme",
+    "tasks": [
+      { "id": "d1-m", "slot": "Morning", "title": "Read Aloud x5", "type": "Read Aloud", "minutes": 30, "difficulty": "Easy|Medium|Hard" },
+      { "id": "d1-a", "slot": "Afternoon", "title": "...", "type": "...", "minutes": 45, "difficulty": "..." },
+      { "id": "d1-e", "slot": "Evening", "title": "...", "type": "...", "minutes": 30, "difficulty": "..." }
+    ]
+  }]
+}
+Generate exactly ${days} days starting from ${new Date().toISOString().slice(0, 10)}. Each day should have Morning, Afternoon, and Evening tasks. Total daily minutes should be about ${parseInt(form.dailyHours) * 60}.`,
+        temperature: 0.6,
+        maxOutputTokens: 8000,
+      });
+      let plan: Plan;
+      try {
+        plan = parseGeminiJson<Plan>(text);
+      } catch {
+        plan = { summary: "Your personalized study plan is ready.", days: [], rawText: text };
+      }
       if (planRow) await supabase.from("study_plans").update({ is_active: false }).eq("id", planRow.id);
       const { data: row, error: insErr } = await supabase.from("study_plans")
-        .insert({ user_id: user.id, inputs: form, plan: data, completed_tasks: [], is_active: true })
+        .insert({ user_id: user.id, inputs: form, plan, completed_tasks: [], is_active: true })
         .select().single();
       if (insErr) throw insErr;
       setPlanRow(row);
       toast.success("Your study plan is ready!");
-    } catch (e: any) {
-      toast.error("Could not generate plan: " + (e?.message || "unknown"));
+    } catch {
+      setErrorText(FRIENDLY_ERROR);
     } finally { setGenerating(false); }
   };
 
@@ -71,12 +106,17 @@ const StudyPlan = () => {
     doc.setFontSize(18); doc.text("ScorePTE — Your Study Plan", 14, 18);
     doc.setFontSize(10); doc.text(doc.splitTextToSize(plan.summary || "", 180), 14, 28);
     let y = 50;
-    plan.days.forEach((d) => {
+    if (plan.rawText) {
+      doc.text(doc.splitTextToSize(plan.rawText, 180), 14, y);
+      doc.save("scorepte-study-plan.pdf");
+      return;
+    }
+    (plan.days || []).forEach((d) => {
       if (y > 270) { doc.addPage(); y = 20; }
       doc.setFontSize(12); doc.setTextColor(16, 185, 129);
       doc.text(`Day ${d.day} — ${d.date}  ·  ${d.focus}`, 14, y); y += 6;
       doc.setFontSize(10); doc.setTextColor(40);
-      d.tasks.forEach((t) => {
+      (d.tasks || []).forEach((t) => {
         const line = `  • ${t.slot}: ${t.title} (${t.minutes} min · ${t.difficulty})`;
         doc.text(doc.splitTextToSize(line, 180), 14, y); y += 6;
       });
@@ -129,6 +169,7 @@ const StudyPlan = () => {
             <Button onClick={generate} disabled={generating} className="w-full bg-gradient-primary text-primary-foreground" size="lg">
               {generating ? <><Loader2 className="h-4 w-4 animate-spin" /> AI is building your personalized plan...</> : <><Sparkles className="h-4 w-4" /> Generate My Study Plan</>}
             </Button>
+            {errorText && <p className="text-sm text-destructive text-center">{errorText}</p>}
           </div>
         </div>
       </DashboardLayout>
@@ -136,7 +177,7 @@ const StudyPlan = () => {
   }
 
   const plan: Plan = planRow.plan;
-  const allTasks = plan.days.flatMap((d) => d.tasks);
+  const allTasks = (plan.days || []).flatMap((d) => d.tasks || []);
   const completed: string[] = planRow.completed_tasks || [];
   const pct = allTasks.length ? Math.round((completed.length / allTasks.length) * 100) : 0;
 
@@ -147,6 +188,7 @@ const StudyPlan = () => {
           <div>
             <h1 className="text-2xl md:text-3xl font-extrabold">Your Study Plan</h1>
             <p className="text-sm text-muted-foreground mt-1 max-w-2xl">{plan.summary}</p>
+            {plan.rawText && <pre className="mt-4 whitespace-pre-wrap text-sm text-muted-foreground glass rounded-2xl p-5 max-w-3xl">{plan.rawText}</pre>}
           </div>
           <div className="flex gap-2">
             <Button variant="glass" onClick={downloadPDF} size="sm"><Download className="h-4 w-4" /> PDF</Button>
@@ -165,7 +207,7 @@ const StudyPlan = () => {
         </div>
 
         <div className="grid gap-4">
-          {plan.days.map((d) => {
+          {(plan.days || []).map((d) => {
             const dayDone = d.tasks.every((t) => completed.includes(t.id));
             return (
               <div key={d.day} className={`glass rounded-2xl p-5 ${dayDone ? "ring-1 ring-accent/40" : ""}`}>

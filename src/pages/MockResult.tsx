@@ -10,16 +10,27 @@ const MockResult = () => {
   const { id } = useParams();
   const nav = useNavigate();
   const [r, setR] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState<number | null>(null);
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase.from("mock_test_results").select("*").eq("id", id).maybeSingle();
       setR(data);
+      setLoading(false);
     })();
   }, [id]);
 
-  if (!r) return <DashboardLayout><div className="p-8 text-muted-foreground">Loading…</div></DashboardLayout>;
+  if (loading) return <DashboardLayout><div className="p-8 text-muted-foreground">Loading…</div></DashboardLayout>;
+  if (!r) return (
+    <DashboardLayout>
+      <div className="glass rounded-2xl p-8 text-center max-w-lg mx-auto">
+        <h1 className="text-xl font-bold">Result not found</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Something went wrong, please try again</p>
+        <Button variant="hero" className="mt-5" onClick={() => nav("/mock-tests")}>Back to Mock Tests</Button>
+      </div>
+    </DashboardLayout>
+  );
 
   const c = r.communicative || {};
   const e = r.enabling || {};

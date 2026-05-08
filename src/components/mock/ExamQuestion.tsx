@@ -24,11 +24,13 @@ export const ExamQuestion = ({ q, value, onChange }: Props) => {
 
   // Speech recognition for speaking tasks
   const [recording, setRecording] = useState(false);
+  const [errorText, setErrorText] = useState("");
   const recRef = useRef<any>(null);
 
   const startRec = () => {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SR) { alert("Speech recognition not supported in this browser. Type your response."); return; }
+    if (!SR) { setErrorText("Speech recognition is not supported in this browser. Type your response."); return; }
+    setErrorText("");
     const r = new SR();
     r.continuous = true; r.interimResults = true; r.lang = "en-US";
     let acc = "";
@@ -196,6 +198,7 @@ export const ExamQuestion = ({ q, value, onChange }: Props) => {
               </span>
             )}
           </div>
+          {errorText && <p className="text-sm text-rose-600">{errorText}</p>}
           <Textarea
             value={text}
             onChange={(e) => onChange(e.target.value)}

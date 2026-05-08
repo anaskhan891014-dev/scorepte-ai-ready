@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Brain, Send, Plus, Copy, ThumbsUp, ThumbsDown, Sparkles, Mic, Loader2, MessageSquare, Trash2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
+import { CHAT_ERROR, generateGeminiChat } from "@/lib/gemini";
 
 const SUGGESTED = [
   "What are the new question types in 2025?",
@@ -21,6 +22,8 @@ const SUGGESTED = [
 type Msg = { id?: string; role: "user" | "assistant"; content: string; feedback?: number | null };
 type Conv = { id: string; title: string; updated_at: string };
 
+const SYSTEM = `You are ScorePTE AI Tutor, an expert PTE Academic coach. You know the PTE Academic exam format with 22 question types including Summarize Group Discussion and Respond to a Situation. Give specific, actionable advice with examples. Format answers using clean markdown. If the user asks something unrelated to PTE, English study, or test prep, politely redirect them back to PTE topics in 1-2 sentences.`;
+
 const AITutor = () => {
   const { user } = useAuth();
   const [convos, setConvos] = useState<Conv[]>([]);
@@ -29,6 +32,7 @@ const AITutor = () => {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [listening, setListening] = useState(false);
+  const [errorText, setErrorText] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const recogRef = useRef<any>(null);
 
@@ -59,13 +63,14 @@ const AITutor = () => {
     if (!text.trim() || sending || !user) return;
     const trimmed = text.trim().slice(0, 500);
     setSending(true);
+    setErrorText("");
     setInput("");
 
     let convId = activeId;
     if (!convId) {
       const { data, error } = await supabase.from("chat_conversations")
         .insert({ user_id: user.id, title: trimmed.slice(0, 50) }).select("id").single();
-      if (error || !data) { setSending(false); toast.error("Could not start chat"); return; }
+      if (error || !data) { setSending(false); setErrorText(CHAT_ERROR); return; }
       convId = data.id;
       setActiveId(convId);
     }
@@ -76,20 +81,20 @@ const AITutor = () => {
     await supabase.from("chat_messages").insert({ conversation_id: convId, user_id: user.id, role: "user", content: trimmed });
 
     try {
-      const { data, error } = await supabase.functions.invoke("ai-tutor", {
-        body: { messages: newMsgs.map((m) => ({ role: m.role, content: m.content })) },
+      const text = await generateGeminiChat({
+        system: SYSTEM,
+        messages: newMsgs.map((m) => ({ role: m.role, content: m.content })),
       });
-      if (error) throw error;
-      const reply: Msg = { role: "assistant", content: data.text };
+      const reply: Msg = { role: "assistant", content: text };
       setMessages([...newMsgs, reply]);
       const { data: ins } = await supabase.from("chat_messages")
-        .insert({ conversation_id: convId, user_id: user.id, role: "assistant", content: data.text })
+        .insert({ conversation_id: convId, user_id: user.id, role: "assistant", content: text })
         .select("id").single();
       if (ins) setMessages((m) => m.map((x, i) => i === newMsgs.length ? { ...x, id: ins.id } : x));
       await supabase.from("chat_conversations").update({ updated_at: new Date().toISOString() }).eq("id", convId);
       loadConvos();
-    } catch (e: any) {
-      toast.error("AI Tutor error: " + (e?.message || "unknown"));
+    } catch {
+      setErrorText(CHAT_ERROR);
     } finally {
       setSending(false);
     }
@@ -103,7 +108,7 @@ const AITutor = () => {
 
   const startVoice = () => {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SR) { toast.error("Voice input not supported in this browser"); return; }
+    if (!SR) { setErrorText("Voice input is not supported in this browser."); return; }
     if (listening) { recogRef.current?.stop(); return; }
     const r = new SR();
     r.lang = "en-US"; r.interimResults = false;
@@ -198,6 +203,7 @@ const AITutor = () => {
           </div>
 
           <div className="p-3 md:p-4 border-t border-border">
+            {errorText && <p className="mb-2 text-sm text-destructive">{errorText}</p>}
             <div className="flex items-end gap-2">
               <div className="flex-1 glass rounded-xl flex items-end px-3 py-2">
                 <textarea

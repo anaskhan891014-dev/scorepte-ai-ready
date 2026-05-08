@@ -5,7 +5,6 @@ import { formatTime, useCountdown } from "@/lib/practiceUtils";
 import { FeedbackCard } from "./FeedbackCard";
 import { scorePTE, saveAttempt, ScoreResult } from "@/lib/scorePTE";
 import { meta } from "@/lib/practiceBank";
-import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 type Props = {
@@ -23,6 +22,7 @@ export const WritingInterface = (p: Props) => {
   const [text, setText] = useState("");
   const [scoring, setScoring] = useState(false);
   const [result, setResult] = useState<ScoreResult | null>(null);
+  const [errorText, setErrorText] = useState("");
   const timer = useCountdown(p.minutes * 60, true);
 
   const wc = text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -33,7 +33,8 @@ export const WritingInterface = (p: Props) => {
   }, [timer.left]);
 
   const submit = async () => {
-    if (!text.trim()) { toast.error("Please write a response."); return; }
+    if (!text.trim()) { setErrorText("Please write a response."); return; }
+    setErrorText("");
     setScoring(true);
     try {
       const r = await scorePTE({
@@ -51,11 +52,11 @@ export const WritingInterface = (p: Props) => {
         feedback: { strengths: r.strengths, improvements: r.improvements, modelAnswer: r.modelAnswer },
         userResponse: text,
       });
-    } catch (e: any) { toast.error(e.message || "Scoring failed"); }
+    } catch { setErrorText("Something went wrong, please try again"); }
     finally { setScoring(false); }
   };
 
-  const reset = () => { setText(""); setResult(null); timer.reset(); setTimeout(() => timer.start(), 50); };
+  const reset = () => { setText(""); setResult(null); setErrorText(""); timer.reset(); setTimeout(() => timer.start(), 50); };
 
   if (result || scoring) return <FeedbackCard result={result} loading={scoring} onRetry={reset} onNext={p.onNext} />;
 
@@ -89,6 +90,7 @@ export const WritingInterface = (p: Props) => {
         <Button variant="hero" size="lg" onClick={submit} disabled={scoring} className="w-full">
           {scoring ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit for AI Scoring"}
         </Button>
+        {errorText && <p className="text-sm text-destructive text-center">{errorText}</p>}
       </div>
     </div>
   );

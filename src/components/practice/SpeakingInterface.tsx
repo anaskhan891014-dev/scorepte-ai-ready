@@ -170,7 +170,10 @@ export const SpeakingInterface = (p: Props) => {
           <div className="text-center">
             <p className="text-xs uppercase tracking-widest text-muted-foreground">Preparation</p>
             <p className="mt-2 text-5xl font-display font-extrabold gradient-text tabular-nums">{formatTime(prep.left)}</p>
-            <p className="mt-2 text-sm text-muted-foreground">Recording starts automatically</p>
+            <div className="mt-2 flex items-center justify-center gap-3">
+              <p className="text-sm text-muted-foreground">Recording starts automatically</p>
+              <button onClick={() => { prep.skip(); startRecording(); }} className="text-xs px-2.5 py-1 rounded-md bg-secondary/70 text-muted-foreground hover:text-foreground transition">Skip →</button>
+            </div>
           </div>
         )}
         {phase === "recording" && (

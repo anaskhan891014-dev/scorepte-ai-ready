@@ -24,6 +24,7 @@ export const useCountdown = (seconds: number, autostart = false) => {
     left,
     running,
     start: () => { setLeft(seconds); setRunning(true); },
+    skip: () => { if (ref.current) window.clearInterval(ref.current); setLeft(0); setRunning(false); },
     stop: () => setRunning(false),
     reset: () => { setLeft(seconds); setRunning(false); },
   };

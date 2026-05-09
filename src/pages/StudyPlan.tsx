@@ -47,8 +47,9 @@ const StudyPlan = () => {
     try {
       const days = Math.max(1, Math.min(60, Math.ceil((new Date(form.examDate).getTime() - Date.now()) / 86400000)));
       const text = await generateGeminiText({
-        system: "You are ScorePTE AI Coach. Build personalized PTE Academic study plans covering all 22 question types. Focus more time on weak areas.",
-        prompt: `Build a ${days}-day PTE study plan.
+        prompt: `You are ScorePTE AI Coach. Build personalized PTE Academic study plans covering all 22 question types. Focus more time on weak areas.
+
+Build a ${days}-day PTE study plan.
 Current score: ${form.currentScore || "Never taken"}
 Target score: ${form.targetScore}
 Daily hours available: ${form.dailyHours}
@@ -70,8 +71,6 @@ Return JSON exactly when possible:
   }]
 }
 Generate exactly ${days} days starting from ${new Date().toISOString().slice(0, 10)}. Each day should have Morning, Afternoon, and Evening tasks. Total daily minutes should be about ${parseInt(form.dailyHours) * 60}.`,
-        temperature: 0.6,
-        maxOutputTokens: 8000,
       });
       let plan: Plan;
       try {

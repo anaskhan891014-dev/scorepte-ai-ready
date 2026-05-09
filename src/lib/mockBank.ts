@@ -1,4 +1,4 @@
-import { questions, meta } from "./practiceBank";
+import { meta, questionBank } from "./practiceBank";
 
 export type MockQ = {
   slug: string;          // question type slug (read-aloud, etc.)
@@ -21,14 +21,14 @@ export const sectionTime: Record<SectionKey, number> = {
   l: 30 * 60,
 };
 
-const buildQ = (slug: string): MockQ => ({
+const buildQ = (slug: string, index = 0): MockQ => ({
   slug,
   name: meta[slug].name,
   category: meta[slug].category,
-  data: questions[slug],
+  data: questionBank[slug]?.[index % 100]?.data,
 });
 
-const repeat = (slug: string, n: number) => Array.from({ length: n }, () => buildQ(slug));
+const repeat = (slug: string, n: number) => Array.from({ length: n }, (_, i) => buildQ(slug, i));
 
 // FULL: realistic counts (lower bound to keep test usable)
 export const fullTest: Record<SectionKey, MockQ[]> = {
@@ -64,18 +64,18 @@ export const fullTest: Record<SectionKey, MockQ[]> = {
 
 // MINI: ~30 min mix
 export const miniTest: MockQ[] = [
-  buildQ("read-aloud"),
-  buildQ("repeat-sentence"),
-  buildQ("describe-image"),
-  buildQ("answer-short-question"),
-  buildQ("summarize-written-text"),
-  buildQ("rw-fib"),
-  buildQ("reorder"),
-  buildQ("r-mcq-single"),
-  buildQ("sst"),
-  buildQ("l-fib"),
-  buildQ("smw"),
-  buildQ("wfd"),
+  buildQ("read-aloud", 11),
+  buildQ("repeat-sentence", 12),
+  buildQ("describe-image", 13),
+  buildQ("answer-short-question", 14),
+  buildQ("summarize-written-text", 15),
+  buildQ("rw-fib", 16),
+  buildQ("reorder", 17),
+  buildQ("r-mcq-single", 18),
+  buildQ("sst", 19),
+  buildQ("l-fib", 20),
+  buildQ("smw", 21),
+  buildQ("wfd", 22),
 ];
 
 export const buildSectional = (s: SectionKey) => fullTest[s];

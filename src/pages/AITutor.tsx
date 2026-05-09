@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Brain, Send, Plus, Copy, ThumbsUp, ThumbsDown, Sparkles, Mic, Loader2, MessageSquare, Trash2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
-import { CHAT_ERROR, generateGeminiChat } from "@/lib/gemini";
+import { CHAT_ERROR, generateGeminiText } from "@/lib/gemini";
 
 const SUGGESTED = [
   "What are the new question types in 2025?",
@@ -22,7 +22,7 @@ const SUGGESTED = [
 type Msg = { id?: string; role: "user" | "assistant"; content: string; feedback?: number | null };
 type Conv = { id: string; title: string; updated_at: string };
 
-const SYSTEM = `You are ScorePTE AI Tutor, an expert PTE Academic coach. You know the PTE Academic exam format with 22 question types including Summarize Group Discussion and Respond to a Situation. Give specific, actionable advice with examples. Format answers using clean markdown. If the user asks something unrelated to PTE, English study, or test prep, politely redirect them back to PTE topics in 1-2 sentences.`;
+const SYSTEM = `You are ScorePTE AI Tutor, expert PTE Academic coach. Answer only PTE related questions. Be helpful, friendly and specific.`;
 
 const AITutor = () => {
   const { user } = useAuth();
@@ -81,9 +81,9 @@ const AITutor = () => {
     await supabase.from("chat_messages").insert({ conversation_id: convId, user_id: user.id, role: "user", content: trimmed });
 
     try {
-      const text = await generateGeminiChat({
-        system: SYSTEM,
-        messages: newMsgs.map((m) => ({ role: m.role, content: m.content })),
+      const history = newMsgs.slice(-8).map((m) => `${m.role === "assistant" ? "Tutor" : "Student"}: ${m.content}`).join("\n");
+      const text = await generateGeminiText({
+        prompt: `${SYSTEM}\n\nConversation so far:\n${history}\n\nReply to the latest student message in clean markdown.`,
       });
       const reply: Msg = { role: "assistant", content: text };
       setMessages([...newMsgs, reply]);

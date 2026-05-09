@@ -1,7 +1,8 @@
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Search, Shuffle, Volume2 } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { questions, meta } from "@/lib/practiceBank";
+import { getPracticeQuestion, meta, questionBank, type Difficulty } from "@/lib/practiceBank";
 import { SpeakingInterface } from "@/components/practice/SpeakingInterface";
 import { WritingInterface } from "@/components/practice/WritingInterface";
 import { MCQInterface } from "@/components/practice/MCQInterface";
@@ -10,22 +11,30 @@ import { ReorderInterface } from "@/components/practice/ReorderInterface";
 import { SelectMissingWord } from "@/components/practice/SelectMissingWord";
 import { HighlightIncorrect } from "@/components/practice/HighlightIncorrect";
 import { WriteFromDictation } from "@/components/practice/WriteFromDictation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { speak } from "@/lib/practiceUtils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const PracticeSession = () => {
-  const { slug = "" } = useParams();
+  const { slug = "", questionId } = useParams();
   const navigate = useNavigate();
   const m = meta[slug];
-  const q = questions[slug];
+  const picked = getPracticeQuestion(slug, questionId);
+  const q = picked?.data;
 
-  const next = () => navigate("/practice");
+  const next = () => navigate(`/practice/${slug}`);
 
-  if (!m || !q) {
+  if (!m || !picked) {
     return (
       <DashboardLayout>
         <p className="text-muted-foreground">Question not found.</p>
       </DashboardLayout>
     );
   }
+
+  if (!questionId) return <QuestionList slug={slug} />;
 
   const renderInterface = () => {
     switch (slug) {
@@ -45,14 +54,14 @@ const PracticeSession = () => {
         return <SpeakingInterface slug={slug} audioOnly prompt={q.audioText} prepSeconds={q.prep} recordSeconds={q.record} criteria={["Content", "Pronunciation", "Fluency"]} questionType={m.name} onNext={next} />;
 
       case "summarize-written-text":
-        return <WritingInterface slug={slug} prompt={q.prompt} minWords={q.minWords} maxWords={q.maxWords} minutes={q.minutes} criteria={["Content", "Grammar", "Vocabulary"]} questionType={m.name} onNext={next} />;
+        return <WritingInterface slug={slug} prompt={q.prompt} minWords={q.minWords} maxWords={q.maxWords} minutes={q.minutes} criteria={["Content", "Grammar", "Vocabulary", "Structure"]} questionType={m.name} onNext={next} />;
       case "write-essay":
-        return <WritingInterface slug={slug} prompt={q.prompt} minWords={q.minWords} maxWords={q.maxWords} minutes={q.minutes} criteria={["Content", "Grammar", "Vocabulary", "Structure", "Linguistic Range"]} questionType={m.name} onNext={next} />;
+        return <WritingInterface slug={slug} prompt={q.prompt} minWords={q.minWords} maxWords={q.maxWords} minutes={q.minutes} criteria={["Content", "Grammar", "Vocabulary", "Structure"]} questionType={m.name} onNext={next} />;
       case "sst":
         return (
           <div className="space-y-5">
             <AudioBanner text={q.audioText} />
-            <WritingInterface slug={slug} prompt={q.audioText} minWords={50} maxWords={70} minutes={10} criteria={["Content", "Grammar", "Vocabulary"]} questionType={m.name} onNext={next} />
+            <WritingInterface slug={slug} prompt={q.audioText} minWords={50} maxWords={70} minutes={10} criteria={["Content", "Grammar", "Vocabulary", "Structure"]} questionType={m.name} onNext={next} />
           </div>
         );
 
@@ -88,12 +97,12 @@ const PracticeSession = () => {
 
   return (
     <DashboardLayout>
-      <button onClick={() => navigate("/practice")} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-4 w-4" /> Back to Practice
+      <button onClick={() => navigate(`/practice/${slug}`)} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="h-4 w-4" /> Back to Questions
       </button>
       <div className="mt-4 flex items-center justify-between flex-wrap gap-3">
         <div>
-          <p className="text-xs uppercase tracking-widest text-accent">{m.category}</p>
+          <p className="text-xs uppercase tracking-widest text-accent">{m.category} · Question {picked.number}</p>
           <h1 className="mt-1 text-2xl md:text-3xl font-extrabold">{m.name}</h1>
         </div>
       </div>
@@ -102,9 +111,86 @@ const PracticeSession = () => {
   );
 };
 
-import { Volume2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { speak } from "@/lib/practiceUtils";
+const QuestionList = ({ slug }: { slug: string }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const m = meta[slug];
+  const list = questionBank[slug] || [];
+  const [search, setSearch] = useState("");
+  const [difficulty, setDifficulty] = useState<"All" | Difficulty>("All");
+  const [attempted, setAttempted] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("practice_attempts").select("feedback,question_slug").eq("question_slug", slug).limit(1000)
+      .then(({ data }) => {
+        const ids = new Set<string>();
+        (data || []).forEach((a: any) => {
+          const qid = a.feedback?.questionId;
+          if (qid) ids.add(qid);
+        });
+        setAttempted(ids);
+      });
+  }, [user, slug]);
+
+  const filtered = useMemo(() => list.filter((q) => {
+    const okDiff = difficulty === "All" || q.difficulty === difficulty;
+    const okSearch = !search.trim() || `${q.number} ${q.preview}`.toLowerCase().includes(search.toLowerCase());
+    return okDiff && okSearch;
+  }), [list, search, difficulty]);
+
+  const random = () => {
+    const pool = filtered.length ? filtered : list;
+    const q = pool[Math.floor(Math.random() * pool.length)];
+    navigate(`/practice/${slug}/${q.id}`);
+  };
+
+  return (
+    <DashboardLayout>
+      <button onClick={() => navigate("/practice")} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="h-4 w-4" /> Back to Practice
+      </button>
+
+      <div className="mt-5 space-y-5">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-accent">{m.category}</p>
+            <h1 className="mt-1 text-2xl md:text-3xl font-extrabold">{m.name}</h1>
+            <p className="text-sm text-muted-foreground mt-1">{list.length} questions available</p>
+          </div>
+          <Button variant="hero" onClick={random} className="md:w-auto w-full"><Shuffle className="h-4 w-4 mr-2" /> Random Question</Button>
+        </div>
+
+        <div className="glass rounded-2xl p-4 flex flex-col md:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search questions..." className="pl-9 bg-secondary/40 border-border" />
+          </div>
+          <select value={difficulty} onChange={(e) => setDifficulty(e.target.value as any)} className="h-10 rounded-md bg-background border border-input px-3 text-sm">
+            {(["All", "Easy", "Medium", "Hard"] as const).map((d) => <option key={d}>{d}</option>)}
+          </select>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {filtered.map((q) => {
+            const done = attempted.has(q.id);
+            return (
+              <button key={q.id} onClick={() => navigate(`/practice/${slug}/${q.id}`)} className="glass rounded-2xl p-4 text-left hover:-translate-y-0.5 transition-all border border-border/60">
+                <div className="flex items-start justify-between gap-3">
+                  <span className="text-sm font-semibold">Question {q.number}</span>
+                  {done ? <CheckCircle2 className="h-4 w-4 text-accent shrink-0" /> : <span className={`text-[10px] px-2 py-1 rounded-full ${q.difficulty === "Easy" ? "bg-primary/10 text-accent" : q.difficulty === "Medium" ? "bg-secondary text-muted-foreground" : "bg-destructive/10 text-destructive"}`}>{q.difficulty}</span>}
+                </div>
+                <p className="mt-3 text-sm text-muted-foreground line-clamp-3">{q.preview}...</p>
+                {done && <p className="mt-3 text-xs text-accent font-medium">Attempted</p>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+};
+
 const AudioBanner = ({ text }: { text: string }) => (
   <div className="glass rounded-2xl p-6 flex items-center justify-between gap-4">
     <div>

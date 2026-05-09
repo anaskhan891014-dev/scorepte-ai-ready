@@ -40,8 +40,8 @@ export async function generateGeminiText({
     }
   );
 
-  if (!response.ok) throw new Error(FRIENDLY_ERROR);
   const data = await response.json();
+  if (!response.ok) throw new Error(FRIENDLY_ERROR);
   const result = data.candidates[0].content.parts[0].text;
   return result as string;
 }

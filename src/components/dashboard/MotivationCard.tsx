@@ -21,10 +21,7 @@ export const MotivationCard = () => {
       const stats = { recentAvg: avg, attempts: attempts?.length || 0 };
       try {
         const t = await generateGeminiText({
-          system: "You are ScorePTE AI Coach. Write one short motivational PTE study message.",
-          prompt: `Recent average score: ${stats.recentAvg}. Recent attempts: ${stats.attempts}. Write one sentence under 24 words with one focus area suggestion.`,
-          temperature: 0.8,
-          maxOutputTokens: 80,
+          prompt: `You are ScorePTE AI Coach. Write one short motivational PTE study message. Recent average score: ${stats.recentAvg}. Recent attempts: ${stats.attempts}. Write one sentence under 24 words with one focus area suggestion.`,
         });
         setText(t); localStorage.setItem(key, t);
       } catch {

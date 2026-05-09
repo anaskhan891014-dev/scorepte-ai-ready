@@ -15,28 +15,28 @@ const sw: Card[] = [
   { slug: "read-aloud", name: "Read Aloud", icon: Mic, difficulty: "Easy", count: 240 },
   { slug: "repeat-sentence", name: "Repeat Sentence", icon: Volume2, difficulty: "Medium", count: 180 },
   { slug: "describe-image", name: "Describe Image", icon: ImageIcon, difficulty: "Hard", count: 120 },
-  { slug: "retell-lecture", name: "Re-tell Lecture", icon: Megaphone, difficulty: "Hard", count: 90 },
+  { slug: "retell-lecture", name: "Re-tell Lecture", icon: Megaphone, difficulty: "Hard", count: 100 },
   { slug: "answer-short-question", name: "Answer Short Question", icon: HelpCircle, difficulty: "Easy", count: 200 },
   { slug: "summarize-written-text", name: "Summarize Written Text", icon: FileText, difficulty: "Medium", count: 140 },
-  { slug: "write-essay", name: "Write Essay", icon: PencilLine, difficulty: "Hard", count: 80 },
-  { slug: "summarize-group-discussion", name: "Summarize Group Discussion", icon: Users, difficulty: "Hard", count: 35, isNew: true },
-  { slug: "respond-to-situation", name: "Respond to a Situation", icon: MessagesSquare, difficulty: "Medium", count: 40, isNew: true },
+  { slug: "write-essay", name: "Write Essay", icon: PencilLine, difficulty: "Hard", count: 100 },
+  { slug: "summarize-group-discussion", name: "Summarize Group Discussion", icon: Users, difficulty: "Hard", count: 100, isNew: true },
+  { slug: "respond-to-situation", name: "Respond to a Situation", icon: MessagesSquare, difficulty: "Medium", count: 100, isNew: true },
 ];
 const reading: Card[] = [
   { slug: "rw-fib", name: "R&W Fill in the Blanks", icon: Type, difficulty: "Medium", count: 160 },
-  { slug: "r-mcq-multi", name: "Multiple Choice (Multiple)", icon: CheckSquare, difficulty: "Hard", count: 90 },
+  { slug: "r-mcq-multi", name: "Multiple Choice (Multiple)", icon: CheckSquare, difficulty: "Hard", count: 100 },
   { slug: "reorder", name: "Re-order Paragraphs", icon: Shuffle, difficulty: "Hard", count: 110 },
   { slug: "r-fib", name: "Reading Fill in the Blanks", icon: AlignLeft, difficulty: "Medium", count: 150 },
   { slug: "r-mcq-single", name: "Multiple Choice (Single)", icon: ListChecks, difficulty: "Easy", count: 120 },
 ];
 const listening: Card[] = [
   { slug: "sst", name: "Summarize Spoken Text", icon: FileText, difficulty: "Hard", count: 100 },
-  { slug: "l-mcq-multi", name: "Multiple Choice (Multiple)", icon: CheckSquare, difficulty: "Hard", count: 85 },
+  { slug: "l-mcq-multi", name: "Multiple Choice (Multiple)", icon: CheckSquare, difficulty: "Hard", count: 100 },
   { slug: "l-fib", name: "Fill in the Blanks", icon: Type, difficulty: "Medium", count: 130 },
-  { slug: "hcs", name: "Highlight Correct Summary", icon: AlignLeft, difficulty: "Hard", count: 70 },
-  { slug: "l-mcq-single", name: "Multiple Choice (Single)", icon: ListChecks, difficulty: "Easy", count: 95 },
-  { slug: "smw", name: "Select Missing Word", icon: HelpCircle, difficulty: "Medium", count: 80 },
-  { slug: "hiw", name: "Highlight Incorrect Words", icon: PencilLine, difficulty: "Medium", count: 90 },
+  { slug: "hcs", name: "Highlight Correct Summary", icon: AlignLeft, difficulty: "Hard", count: 100 },
+  { slug: "l-mcq-single", name: "Multiple Choice (Single)", icon: ListChecks, difficulty: "Easy", count: 100 },
+  { slug: "smw", name: "Select Missing Word", icon: HelpCircle, difficulty: "Medium", count: 100 },
+  { slug: "hiw", name: "Highlight Incorrect Words", icon: PencilLine, difficulty: "Medium", count: 100 },
   { slug: "wfd", name: "Write from Dictation", icon: Volume2, difficulty: "Easy", count: 220 },
 ];
 

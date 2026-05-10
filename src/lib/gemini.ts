@@ -42,7 +42,8 @@ export async function generateGeminiText({
     throw new Error(FRIENDLY_ERROR);
   }
 
-  const text = system ? `${system}\n\n${prompt}` : prompt;
+  const combinedSystem = system ? `${SCOREPTE_SYSTEM}\n\n---\n\n${system}` : SCOREPTE_SYSTEM;
+  const text = `${combinedSystem}\n\n---\n\n${prompt}`;
 
   let res: Response;
   try {

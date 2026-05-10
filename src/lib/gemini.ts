@@ -1,7 +1,10 @@
+import SCOREPTE_BRAIN from "./scorePTEBrain.md?raw";
+
 export type GeminiMessage = { role: "user" | "assistant"; content: string };
 
 export const FRIENDLY_ERROR = "Something went wrong, please try again";
 export const CHAT_ERROR = "Please try again";
+export const SCOREPTE_SYSTEM = SCOREPTE_BRAIN as string;
 
 const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
